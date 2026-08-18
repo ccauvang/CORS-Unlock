@@ -28,6 +28,15 @@ function applyState(enabled) {
             addRules: enabled ? buildRules(blacklist) : []
         });
     });
+
+    console.log('setting icon, enabled:', enabled);
+    chrome.action.setIcon({
+        path: enabled
+            ? { 16: '../../assets/icon16_on.png', 48: '../../assets/icon48_on.png', 128: '../../assets/icon128_on.png' }
+            : { 16: '../../assets/icon16.png', 48: '../../assets/icon48.png', 128: '../../assets/icon128.png' }
+    }, () => {
+        if (chrome.runtime.lastError) console.error('setIcon error:', chrome.runtime.lastError.message);
+    });
 }
 
 chrome.storage.onChanged.addListener((changes, area) => {
