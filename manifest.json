@@ -1,0 +1,72 @@
+{
+  "manifest_version": 3,
+  "name": "CORS Unlock",
+  "version": "2.0",
+  "description": "Unlock The CORS",
+  "permissions": [
+    "downloads",
+    "scripting",
+    "activeTab",
+    "storage",
+    "tabs",
+    "webRequest",
+    "alarms"
+  ],
+  "host_permissions": [
+    "*://*/*"
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  },
+  "action": {
+    "default_title": "CORS Unlock"
+  },
+  "background": {
+    "service_worker": "src/background/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*/*"
+      ],
+      "js": [
+        "src/content/content.js"
+      ],
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "*://*/*"
+      ],
+      "js": [
+        "src/content/hook.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true,
+      "world": "MAIN"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "matches": [
+        "*://*/*"
+      ],
+      "resources": [
+        "lib/ffmpeg.js",
+        "lib/ffmpeg-core.js",
+        "lib/ffmpeg-core.wasm",
+        "src/history/history.html",
+        "src/history/history.css",
+        "src/history/history.js",
+        "src/settings/settings.html",
+        "src/settings/settings.css",
+        "src/settings/settings.js"
+      ]
+    }
+  ],
+  "icons": {
+    "16": "assets/icon16.png",
+    "48": "assets/icon48.png",
+    "128": "assets/icon128.png"
+  }
+}
