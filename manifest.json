@@ -7,15 +7,6 @@
     "storage",
     "declarativeNetRequest"
   ],
-  "declarative_net_request": {
-    "rule_resources": [
-      {
-        "id": "cors_rules",
-        "enabled": true,
-        "path": "src/background/rules.json"
-      }
-    ]
-  },
   "host_permissions": [
     "*://*/*"
   ],
