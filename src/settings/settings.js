@@ -22,6 +22,11 @@ function refreshBlacklistBtn(host, blacklist) {
 }
 
 chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    if (!tabs[0] || !tabs[0].url) {
+        blacklistBtn.disabled = true;
+        blacklistBtn.textContent = 'N/A on this page';
+        return;
+    }
     const host = new URL(tabs[0].url).hostname;
     chrome.storage.local.get({ blacklist: [] }, ({ blacklist }) => {
         refreshBlacklistBtn(host, blacklist);
@@ -30,6 +35,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
 
 blacklistBtn.addEventListener('click', () => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (!tabs[0] || !tabs[0].url) return;
         const host = new URL(tabs[0].url).hostname;
 
         chrome.storage.local.get({ blacklist: [] }, ({ blacklist }) => {

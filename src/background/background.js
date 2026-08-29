@@ -29,7 +29,7 @@ function applyState(enabled) {
         });
     });
 
-    console.log('setting icon, enabled:', enabled);
+    // console.log('setting icon, enabled:', enabled);
     chrome.action.setIcon({
         path: enabled
             ? { 16: '../../assets/icon16_on.png', 48: '../../assets/icon48_on.png', 128: '../../assets/icon128_on.png' }
@@ -39,11 +39,15 @@ function applyState(enabled) {
     });
 }
 
+function initState() {
+    chrome.storage.local.get({ corsEnabled: false }, (data) => applyState(data.corsEnabled));
+}
+
 chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== 'local') return;
-    if (changes.corsEnabled || changes.blacklist) {
-        chrome.storage.local.get({ corsEnabled: false }, (data) => applyState(data.corsEnabled));
-    }
+    if (changes.corsEnabled || changes.blacklist) initState();
 });
 
-chrome.storage.local.get({ corsEnabled: false }, (data) => applyState(data.corsEnabled));
+chrome.runtime.onStartup.addListener(initState);
+chrome.runtime.onInstalled.addListener(initState);
+initState();
