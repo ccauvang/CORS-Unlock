@@ -1,7 +1,7 @@
 const toggle = document.getElementById('corsToggle');
 const statusText = document.getElementById('statusText');
 
-chrome.storage.local.get('corsEnabled', (data) => {
+chrome.storage.local.get({ corsEnabled: false }, (data) => {
     toggle.checked = !!data.corsEnabled;
     statusText.textContent = toggle.checked ? 'ON' : 'OFF';
 });
@@ -10,6 +10,13 @@ toggle.addEventListener('change', () => {
     const enabled = toggle.checked;
     statusText.textContent = enabled ? 'ON' : 'OFF';
     chrome.storage.local.set({ corsEnabled: enabled });
+
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (!tabs[0] || !tabs[0].url) return;
+        let origin;
+        try { origin = new URL(tabs[0].url).origin; } catch (e) { return; }
+        chrome.runtime.sendMessage({ method: 'toggle-origin-rule', tabId: tabs[0].id, origin, enabled });
+    });
 });
 
 const blacklistBtn = document.getElementById('blacklistBtn');

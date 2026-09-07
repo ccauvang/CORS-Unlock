@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "CORS Unlock",
-  "version": "2.0",
+  "version": "2.1",
   "description": "Unlock The CORS",
   "permissions": [
     "storage",
@@ -20,6 +20,14 @@
   "background": {
     "service_worker": "src/background/background.js"
   },
+  "content_scripts": [
+    {
+      "matches": ["*://*/*"],
+      "js": ["src/background/hook.js"],
+      "run_at": "document_start",
+      "all_frames": false
+    }
+  ],
   "icons": {
     "16": "assets/icon16.png",
     "48": "assets/icon48.png",
