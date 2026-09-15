@@ -1,3 +1,4 @@
+// Global rule: ACAO "*" for all requests except blacklisted hosts
 function buildRules(blacklist) {
     const condition = {
         urlFilter: '*',
@@ -21,6 +22,7 @@ function buildRules(blacklist) {
     }];
 }
 
+// Toggle global rule on/off (dynamic rule id 1) + swap toolbar icon
 function applyState(enabled) {
     chrome.storage.local.get({ blacklist: [] }, ({ blacklist }) => {
         chrome.declarativeNetRequest.updateDynamicRules({
@@ -38,6 +40,7 @@ function applyState(enabled) {
     });
 }
 
+// Load corsEnabled from storage, apply it. Runs on install/startup/change.
 function initState() {
     chrome.storage.local.get({ corsEnabled: false }, (data) => applyState(data.corsEnabled));
 }
@@ -52,10 +55,23 @@ chrome.runtime.onInstalled.addListener(initState);
 initState();
 
 // --- per-tab credentialed origin reflection (session rules, no debugger) ---
-function buildOriginRule(tabId, origin) {
+
+// String hash -> small int, used to build a stable rule id
+function hashHost(host) {
+    let h = 5381;
+    for (let i = 0; i < host.length; i++) h = ((h << 5) + h + host.charCodeAt(i)) | 0;
+    return Math.abs(h) % 9000;
+}
+
+// Deterministic id per tab+host (no memory needed, survives SW restart)
+function ruleIdFor(tabId, host) {
+    return 100000 + (tabId * 10000) + hashHost(host);
+}
+
+// One session rule: reflect exact origin + allow credentials, scoped to this host only
+function buildOriginRule(id, tabId, host, origin) {
     return [{
-        id: 100000 + tabId,
-        priority: 2,
+        id, priority: 2,
         action: {
             type: 'modifyHeaders',
             responseHeaders: [
@@ -63,20 +79,20 @@ function buildOriginRule(tabId, origin) {
                 { header: 'Access-Control-Allow-Credentials', operation: 'set', value: 'true' }
             ]
         },
-        condition: {
-            tabIds: [tabId],
-            resourceTypes: ['xmlhttprequest']
-        }
+        condition: { tabIds: [tabId], initiatorDomains: [host], resourceTypes: ['xmlhttprequest'] }
     }];
 }
 
-function applyTabOriginRule(tabId, origin, enabled) {
+// Add/remove the per-tab-per-host session rule via DNR
+function applyTabOriginRule(tabId, origin, host, enabled) {
+    const id = ruleIdFor(tabId, host);
     chrome.declarativeNetRequest.updateSessionRules({
-        removeRuleIds: [100000 + tabId],
-        addRules: enabled ? buildOriginRule(tabId, origin) : []
-    });
+        removeRuleIds: [id],
+        addRules: enabled ? buildOriginRule(id, tabId, host, origin) : []
+    }).catch(e => console.error('updateSessionRules failed:', e.message));
 }
 
+// Compute tab's own origin/host from its URL, apply rule if enabled + not blacklisted
 function syncTabRule(tabId, url) {
     chrome.storage.local.get({ corsEnabled: false, blacklist: [] }, ({ corsEnabled, blacklist }) => {
         if (!url) return;
@@ -88,26 +104,31 @@ function syncTabRule(tabId, url) {
         } catch (e) { return; }
 
         const shouldApply = corsEnabled && !blacklist.includes(host);
-        applyTabOriginRule(tabId, origin, shouldApply);
+        applyTabOriginRule(tabId, origin, host, shouldApply);
     });
 }
 
+// hook.js pings its frame's origin here; also handles manual toggle-origin-rule msg
 chrome.runtime.onMessage.addListener((msg, sender) => {
     if (msg.method === 'sync-origin' && sender.tab?.id != null) {
         chrome.storage.local.get({ corsEnabled: false, blacklist: [] }, ({ corsEnabled, blacklist }) => {
             const shouldApply = corsEnabled && !blacklist.includes(msg.host);
-            applyTabOriginRule(sender.tab.id, msg.origin, shouldApply);
+            applyTabOriginRule(sender.tab.id, msg.origin, msg.host, shouldApply);
         });
         return;
     }
     if (msg.method !== 'toggle-origin-rule') return;
-    applyTabOriginRule(msg.tabId, msg.origin, msg.enabled);
+    let host;
+    try { host = new URL(msg.origin).hostname; } catch (e) { return; }
+    applyTabOriginRule(msg.tabId, msg.origin, host, msg.enabled);
 });
 
+// Page finished loading -> sync top-frame rule
 chrome.tabs.onUpdated.addListener((tabId, info, tab) => {
     if (info.status === 'complete' && tab.url) syncTabRule(tabId, tab.url);
 });
 
+// Tab switched to -> sync rule (covers tabs loaded in background)
 chrome.tabs.onActivated.addListener(({ tabId }) => {
     chrome.tabs.get(tabId, (tab) => {
         if (chrome.runtime.lastError || !tab.url) return;
@@ -115,6 +136,10 @@ chrome.tabs.onActivated.addListener(({ tabId }) => {
     });
 });
 
+// Tab closed -> remove all its session rules (queries live rules, not memory)
 chrome.tabs.onRemoved.addListener((tabId) => {
-    chrome.declarativeNetRequest.updateSessionRules({ removeRuleIds: [100000 + tabId] });
+    chrome.declarativeNetRequest.getSessionRules((rules) => {
+        const ids = rules.filter(r => r.condition.tabIds?.includes(tabId)).map(r => r.id);
+        if (ids.length) chrome.declarativeNetRequest.updateSessionRules({ removeRuleIds: ids });
+    });
 });
