@@ -56,16 +56,13 @@ initState();
 
 // --- per-tab credentialed origin reflection (session rules, no debugger) ---
 
-// String hash -> small int, used to build a stable rule id
-function hashHost(host) {
-    let h = 5381;
-    for (let i = 0; i < host.length; i++) h = ((h << 5) + h + host.charCodeAt(i)) | 0;
-    return Math.abs(h) % 9000;
-}
-
 // Deterministic id per tab+host (no memory needed, survives SW restart)
 function ruleIdFor(tabId, host) {
-    return 100000 + (tabId * 10000) + hashHost(host);
+    if (!Number.isInteger(tabId)) return null;
+    let h = 5381;
+    const s = tabId + ':' + host;
+    for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+    return 100000 + (Math.abs(h) % 2000000000);
 }
 
 // One session rule: reflect exact origin + allow credentials, scoped to this host only
