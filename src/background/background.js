@@ -15,7 +15,7 @@ function buildRules(blacklist) {
             responseHeaders: [
                 { header: 'Access-Control-Allow-Origin', operation: 'set', value: '*' },
                 { header: 'Access-Control-Allow-Methods', operation: 'set', value: 'GET,POST,PUT,DELETE,OPTIONS' },
-                { header: 'Access-Control-Allow-Headers', operation: 'set', value: '*' }
+                { header: 'Access-Control-Allow-Headers', operation: 'set', value: 'Content-Type,Authorization,X-Requested-With' }
             ]
         },
         condition

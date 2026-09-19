@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono&display=swap');
+
 * {
     margin: 0;
     padding: 0;
@@ -5,7 +7,7 @@
 }
 
 body {
-    width: 220px;
+    width: 240px;
     height: 180px;
     display: flex;
     flex-direction: column;
@@ -13,7 +15,7 @@ body {
     align-items: center;
     gap: 14px;
     background: #fff;
-    font-family: system-ui, sans-serif;
+    font-family: 'JetBrains Mono', monospace;
 }
 
 .wrap {
@@ -67,6 +69,7 @@ body {
     font-weight: 800;
     letter-spacing: 1px;
     color: #080808;
+    font-family: 'JetBrains Mono', monospace;
 }
 
 #headerText {
@@ -74,6 +77,7 @@ body {
     font-weight: 800;
     letter-spacing: 1px;
     color: #080808;
+    font-family: 'Segoe UI', sans-serif;
 }
 
 #blacklistBtn {
@@ -85,6 +89,7 @@ body {
     font-weight: 600;
     cursor: pointer;
     transition: background 0.15s, color 0.15s, border-color 0.15s;
+    font-family: 'JetBrains Mono', monospace;
 }
 
 #blacklistBtn.not-blacklisted {
