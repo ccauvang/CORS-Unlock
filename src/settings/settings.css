@@ -7,8 +7,8 @@
 }
 
 body {
-    width: 240px;
-    height: 180px;
+    width: 260px;
+    height: 240px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -114,4 +114,14 @@ body {
 
 #blacklistBtn:active {
     transform: scale(0.97);
+}
+
+#warnText {
+    color: #d32f2f;
+    font-size: 11px;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.3;
+    margin-top: 2px;
+    user-select: none;
 }

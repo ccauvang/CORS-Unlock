@@ -2,6 +2,20 @@
 
 A lightweight Chrome extension (Manifest V3) that unblocks CORS errors for local development — no `chrome.debugger`, no visible "debugging this browser" banner.
 
+## ⚠️ Security Warning
+
+This extension globally disables the browser's CORS protection for sites you visit while it's toggled ON. That means any site you browse can potentially read cross-origin responses from other sites you're logged into (banking, email, work tools, etc.), using your active session cookies.
+
+**Use at your own risk.**
+
+- Keep it **OFF by default** — only enable when actively testing/developing.
+- **Blacklist** any sensitive sites (banking, email, work) you stay logged into.
+- Turn it **OFF immediately** after you're done, don't leave it running in the background.
+
+Pin the extension to your toolbar so you can see its on/off status at a glance from the icon.
+
+This tool is intended for developers debugging CORS issues, not for general browsing.
+
 ## How it works
 
 **1. Baseline rule (site-wide)**
