@@ -7,6 +7,7 @@
 }
 
 body {
+    position: relative;
     width: 260px;
     height: 240px;
     display: flex;
@@ -16,6 +17,76 @@ body {
     gap: 14px;
     background: #fff;
     font-family: 'JetBrains Mono', monospace;
+}
+
+#ioBtn {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+
+.hidden { display: none; }
+
+#ioOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.5);
+    align-items: center;
+    justify-content: center;
+}
+#ioOverlay:not(.hidden) {
+    display: flex;
+}
+
+#ioDialog {
+    position: relative;
+    width: 90%;
+    height: 80%;
+    background: #fff;
+    padding: 16px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#ioClose {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    z-index: 5;
+    border-radius: 7px;
+    border: 1px solid #000;
+}
+
+#importLabel, #exportBtn {
+    padding: 8px 10px;
+    border: 2px solid #000;
+    border-radius: 6px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+#importLabel:hover, #exportBtn:hover {
+    border: 2px solid #d7340b;
+}
+
+#headerExImp {
+    white-space: nowrap;
+    font-size: 13px;
+    margin-bottom: 15%;
 }
 
 .wrap {

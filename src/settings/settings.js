@@ -1,5 +1,11 @@
 const toggle = document.getElementById('corsToggle');
 const statusText = document.getElementById('statusText');
+const ioBtn = document.getElementById('ioBtn');
+const ioOverlay = document.getElementById('ioOverlay');
+const ioClose = document.getElementById('ioClose');
+const importFile = document.getElementById('importFile');
+const exportBtn = document.getElementById('exportBtn');
+
 
 chrome.storage.local.get({ corsEnabled: false }, (data) => {
     toggle.checked = !!data.corsEnabled;
@@ -55,4 +61,41 @@ blacklistBtn.addEventListener('click', () => {
             chrome.storage.local.set({ blacklist }, () => refreshBlacklistBtn(host, blacklist));
         });
     });
+});
+
+ioBtn.addEventListener('click', () => ioOverlay.classList.remove('hidden'));
+ioClose.addEventListener('click', () => ioOverlay.classList.add('hidden'));
+
+exportBtn.addEventListener('click', () => {
+    chrome.storage.local.get({ corsEnabled: false, blacklist: [] }, (data) => {
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'cors-unlock-settings.json';
+        a.click();
+        URL.revokeObjectURL(url);
+    });
+});
+
+importFile.addEventListener('change', () => {
+    const file = importFile.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+        let data;
+        try { data = JSON.parse(reader.result); } catch (e) { alert('Invalid JSON'); return; }
+        const corsEnabled = !!data.corsEnabled;
+        const blacklist = Array.isArray(data.blacklist) ? data.blacklist : [];
+        chrome.storage.local.set({ corsEnabled, blacklist }, () => {
+            toggle.checked = corsEnabled;
+            statusText.textContent = corsEnabled ? 'ON' : 'OFF';
+            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                if (tabs[0]?.url) refreshBlacklistBtn(new URL(tabs[0].url).hostname, blacklist);
+            });
+            ioOverlay.classList.add('hidden');
+        });
+    };
+    reader.readAsText(file);
+    importFile.value = '';
 });

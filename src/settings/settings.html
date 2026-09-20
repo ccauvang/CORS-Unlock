@@ -1,6 +1,14 @@
 <link rel="stylesheet" href="settings.css">
 <div class="wrap">
     <p id="headerText">CORS Unlock</p>
+    <button id="ioBtn" title="Import / Export">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3v12"></path>
+            <path d="M7 10l5 5 5-5"></path>
+            <path d="M5 19h14"></path>
+        </svg>
+    </button>
     <label class="switch">
         <input type="checkbox" id="corsToggle">
         <span class="slider"></span>
@@ -11,5 +19,22 @@
         <br />
         You should turn OFF when you no need to use it.
     </p>
+    <div id="ioOverlay" class="hidden">
+        <div id="ioDialog">
+            <button id="ioClose">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6L6 18"></path>
+                    <path d="M6 6l12 12"></path>
+                </svg>
+            </button>
+            <h3 id="headerExImp">Import / Export Settings</h3>
+            <label id="importLabel" for="importFile">Import</label>
+            <input type="file" id="importFile" accept="application/json" hidden>
+            <button id="exportBtn">Export</button>
+        </div>
+    </div>
 </div>
+
+
 <script src="settings.js"></script>
