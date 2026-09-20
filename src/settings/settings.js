@@ -91,7 +91,11 @@ importFile.addEventListener('change', () => {
             toggle.checked = corsEnabled;
             statusText.textContent = corsEnabled ? 'ON' : 'OFF';
             chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-                if (tabs[0]?.url) refreshBlacklistBtn(new URL(tabs[0].url).hostname, blacklist);
+                if (!tabs[0] || !tabs[0].url) return;
+                refreshBlacklistBtn(new URL(tabs[0].url).hostname, blacklist);
+                let origin;
+                try { origin = new URL(tabs[0].url).origin; } catch (e) { return; }
+                chrome.runtime.sendMessage({ method: 'toggle-origin-rule', tabId: tabs[0].id, origin, enabled: corsEnabled });
             });
             ioOverlay.classList.add('hidden');
         });
