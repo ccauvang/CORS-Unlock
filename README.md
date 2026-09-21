@@ -23,7 +23,7 @@ When enabled, a `declarativeNetRequest` dynamic rule stamps every `xhr`/`sub_fra
 
 - `Access-Control-Allow-Origin: *`
 - `Access-Control-Allow-Methods: GET,POST,PUT,DELETE,OPTIONS`
-- `Access-Control-Allow-Headers: *`
+- `Access-Control-Allow-Headers: Content-Type,Authorization,X-Requested-With`
 
 This covers most CORS errors — anything that isn't a credentialed request.
 
